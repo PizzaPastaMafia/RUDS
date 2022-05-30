@@ -5,6 +5,7 @@ use std::thread;
 use std::time::Duration;
 use std::fs;
 use std::process::Command;
+//use mpsc::Sender;
 
 const LOCAL: &str = "127.0.0.1:6000";
 const MSG_SIZE: usize = 128;
@@ -15,17 +16,18 @@ fn read_file() -> String{
     println!("In file {}", filename);
     
     let contents = fs::read_to_string(filename)
-        .expect("Something went wrong reading the file");
+    .expect("Something went wrong reading the file");
     
     return contents;
 }
 
 fn main() {
+
+    
     let mut client = TcpStream::connect(LOCAL).expect("Stream failed to connect");
     client.set_nonblocking(true).expect("failed to initiate non-blocking");
-
     let (tx, rx) = mpsc::channel::<String>();
-
+    
     thread::spawn(move || loop {
         let mut buff = vec![0; MSG_SIZE];
         match client.read_exact(&mut buff) {
@@ -54,16 +56,11 @@ fn main() {
         thread::sleep(Duration::from_millis(100));
     });
 
-    let result = Command::new("ls")
-                    .args(&["~/"])
-                    .status()
-                    .unwrap();
-
     println!("Write a Message:");
     loop {
         let mut buff = String::new();
         io::stdin().read_line(&mut buff).expect("reading from stdin failed");
-        let mut msg;
+        let msg;
         if buff.trim().to_string() == "read" {
             msg = read_file();
         } else {
@@ -72,6 +69,5 @@ fn main() {
         }
         if msg == ":quit" || tx.send(msg).is_err() {break}
     }
-    println!("bye bye!");
 
 }
