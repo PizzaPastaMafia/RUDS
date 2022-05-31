@@ -4,7 +4,7 @@ use std::sync::mpsc::{self, TryRecvError};
 use std::thread;
 use std::time::Duration;
 use std::fs;
-use std::process::Command;
+//use std::process::Command;
 //use mpsc::Sender;
 
 const LOCAL: &str = "127.0.0.1:6000";
